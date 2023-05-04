@@ -2,8 +2,8 @@
 
 import * as dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import path from 'path';
-import fs from 'fs';
+
+import { pipeline, itemPromiseBuilder } from './async.js';
 
 dotenv.config();
 
@@ -45,23 +45,5 @@ fetch('https://api.pushd.com/v5/login.json', {
 .then(json => {
     // console.log(JSON.stringify(json));
     const assets = json.assets;
-    return Promise.all(
-        assets.map((item, i) => {
-            const fileName = item.file_name;
-            const userId = item.user_id;
-            const imageUrl = `https://imgproxy.pushd.com/${userId}/${fileName}`;
-
-            return new Promise(resolve => setTimeout(resolve, i * 1000))
-            .then(() => {
-                console.log(`Downloading image ${i+1}/${assets.length}`);
-                return fetch(imageUrl);
-            })
-            .then(res => {
-                console.log(`Saving image ${i+1}/${assets.length}`);
-                const destination = path.join('images', `${userId}__${fileName}`);
-                const fileStream = fs.createWriteStream(destination, { flags: 'w' });
-                return res.body.pipe(fileStream);
-            });
-        })
-    );
+    return pipeline(assets, itemPromiseBuilder);
 });
