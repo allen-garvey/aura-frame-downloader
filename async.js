@@ -14,17 +14,22 @@ Promise.resolve());
 export const itemPromiseBuilder = (item, i, items) => {
     const fileName = item.file_name;
     const userId = item.user_id;
+    const destination = path.join('images', `${userId}__${fileName}`);
     const imageUrl = `https://imgproxy.pushd.com/${userId}/${fileName}`;
+    const counter = `${i+1}/${items.length}`;
+    const IMAGE_DOWNLOADED = true;
 
-    return Promise.resolve()
-    .then(() => {
-        console.log(`Downloading image ${i+1}/${items.length}`);
-        return fetch(imageUrl);
-    })
-    .then(res => {
-        console.log(`Saving image ${i+1}/${items.length}`);
-        const destination = path.join('images', `${userId}__${fileName}`);
-        const fileStream = fs.createWriteStream(destination, { flags: 'w' });
-        return res.body.pipe(fileStream);
+    return fs.promises.stat(destination).catch(() => {
+        console.log(`Downloading image ${counter}`);
+        return fetch(imageUrl)
+        .then(res => {
+            console.log(`Saving image ${counter}`);
+            const fileStream = fs.createWriteStream(destination, { flags: 'w' });
+            return res.body.pipe(fileStream);
+        }).then(() => IMAGE_DOWNLOADED);
+    }).then((res) => {
+        if(res !== IMAGE_DOWNLOADED){
+            console.log(`Skipping image ${counter} as it already exists`);
+        }
     });
 };
