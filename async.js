@@ -2,6 +2,14 @@ import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
 
+/**
+ * @typedef {Object} ImageItem
+ * @property {string} fileName
+ * @property {string} userId
+ * @property {string} destination
+ * @property {string} url
+ */
+
 const createTimeoutPromise = (delay) => new Promise(resolve => setTimeout(resolve, delay));
 
 // takes array of items and runs a string of promises one after another, one at a time separated by the delay
@@ -11,17 +19,44 @@ export const pipeline = (items, promiseBuilder, delay=1000) =>
         .then(() => promiseBuilder(item, index, items)), 
 Promise.resolve());
 
+/**
+ * @param {Array.<Object>} items
+ * @returns {Promise<ImageItem>}
+ */
+export const filterOutExistingImages = (items) => Promise.all(
+    items.map(item => {
+        const fileName = item.file_name;
+        const userId = item.user_id;
+        const imageItem = {
+            fileName,
+            userId,
+            destination: path.join('images', `${userId}__${fileName}`),
+            url: `https://imgproxy.pushd.com/${userId}/${fileName}`,
+        };
+        return fs.promises.stat(imageItem.destination).catch(() => {
+            return [true, imageItem];
+        }).then((res) => {
+            if(res instanceof Array && res[0] === true){
+                return res[1];
+            }
+            return null;
+        });
+    })
+).then(items => items.filter(item => item !== null));
+
+/**
+ * @param {ImageItem} item
+ * @param {number} i
+ * @param {Array.<ImageItem>} items
+ */
 export const itemPromiseBuilder = (item, i, items) => {
-    const fileName = item.file_name;
-    const userId = item.user_id;
-    const destination = path.join('images', `${userId}__${fileName}`);
-    const imageUrl = `https://imgproxy.pushd.com/${userId}/${fileName}`;
+    const destination = item.destination;
     const counter = `${i+1}/${items.length}`;
     const IMAGE_DOWNLOADED = true;
 
     return fs.promises.stat(destination).catch(() => {
         console.log(`Downloading image ${counter}`);
-        return fetch(imageUrl)
+        return fetch(item.url)
         .then(res => {
             console.log(`Saving image ${counter}`);
             const fileStream = fs.createWriteStream(destination, { flags: 'w' });

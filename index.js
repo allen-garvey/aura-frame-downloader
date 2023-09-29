@@ -3,7 +3,7 @@
 import * as dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
-import { pipeline, itemPromiseBuilder } from './async.js';
+import { pipeline, itemPromiseBuilder, filterOutExistingImages } from './async.js';
 
 dotenv.config();
 
@@ -44,6 +44,12 @@ fetch('https://api.pushd.com/v5/login.json', {
 .then(r => r.json())
 .then(json => {
     // console.log(JSON.stringify(json));
-    const assets = json.assets;
-    return pipeline(assets, itemPromiseBuilder);
+    return filterOutExistingImages(json.assets);
+})
+.then(items => {
+    if(items.length === 0){
+        console.log('No images to download');
+        return;
+    }
+    return pipeline(items, itemPromiseBuilder);
 });
