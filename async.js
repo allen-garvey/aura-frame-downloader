@@ -10,6 +10,14 @@ import fs from 'fs';
  * @property {string} url
  */
 
+/**
+ * @param {string} fileName
+ * @returns {Promise<boolean>}
+ */
+const doesFileExist = (fileName) => fs.promises.stat(fileName)
+.catch(() => false)
+.then(res => res !== false);
+
 const createTimeoutPromise = (delay) => new Promise(resolve => setTimeout(resolve, delay));
 
 // takes array of items and runs a string of promises one after another, one at a time separated by the delay
@@ -33,14 +41,8 @@ export const filterOutExistingImages = (items) => Promise.all(
             destination: path.join('images', `${userId}__${fileName}`),
             url: `https://imgproxy.pushd.com/${userId}/${fileName}`,
         };
-        return fs.promises.stat(imageItem.destination).catch(() => {
-            return [true, imageItem];
-        }).then((res) => {
-            if(res instanceof Array && res[0] === true){
-                return res[1];
-            }
-            return null;
-        });
+        return doesFileExist(imageItem.destination)
+        .then(res => res ? null : imageItem);
     })
 ).then(items => items.filter(item => item !== null));
 
