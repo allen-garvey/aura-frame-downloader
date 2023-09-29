@@ -2,8 +2,9 @@
 
 import * as dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import fs from 'fs';
 
-import { pipeline, itemPromiseBuilder, filterOutExistingImages } from './async.js';
+import { pipeline, itemPromiseBuilder, filterOutExistingImages, DESTINATION_DIR } from './async.js';
 
 dotenv.config();
 
@@ -23,11 +24,15 @@ const headers = {
     'Content-Type': 'application/json',
 };
 
-fetch('https://api.pushd.com/v5/login.json', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-}).then(r => r.json())
+fs.promises.mkdir(DESTINATION_DIR, {recursive: true})
+.then(() => 
+    fetch('https://api.pushd.com/v5/login.json', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+    })
+)
+.then(r => r.json())
 .then(json => {
     // console.log(JSON.stringify(json));
 

@@ -10,6 +10,8 @@ import fs from 'fs';
  * @property {string} url
  */
 
+export const DESTINATION_DIR = 'images';
+
 /**
  * @param {string} fileName
  * @returns {Promise<boolean>}
@@ -38,7 +40,7 @@ export const filterOutExistingImages = (items) => Promise.all(
         const imageItem = {
             fileName,
             userId,
-            destination: path.join('images', `${userId}__${fileName}`),
+            destination: path.join(DESTINATION_DIR, `${userId}__${fileName}`),
             url: `https://imgproxy.pushd.com/${userId}/${fileName}`,
         };
         return doesFileExist(imageItem.destination)
