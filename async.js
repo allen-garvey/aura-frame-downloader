@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
+import { doesFileExist } from './util.js';
 
 /**
  * @typedef {Object} ImageItem
@@ -11,23 +12,6 @@ import fs from 'fs';
  */
 
 export const DESTINATION_DIR = 'images';
-
-/**
- * @param {string} fileName
- * @returns {Promise<boolean>}
- */
-const doesFileExist = (fileName) => fs.promises.stat(fileName)
-.catch(() => false)
-.then(res => res !== false);
-
-const createTimeoutPromise = (delay) => new Promise(resolve => setTimeout(resolve, delay));
-
-// takes array of items and runs a string of promises one after another, one at a time separated by the delay
-export const pipeline = (items, promiseBuilder, delay=1000) => 
-    items.reduce((promise, item, index) => 
-        promise.then(() => createTimeoutPromise(delay))
-        .then(() => promiseBuilder(item, index, items)), 
-Promise.resolve());
 
 /**
  * @param {Array.<Object>} items

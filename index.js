@@ -4,7 +4,8 @@ import * as dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import fs from 'fs';
 
-import { pipeline, itemPromiseBuilder, filterOutExistingImages, DESTINATION_DIR } from './async.js';
+import { itemPromiseBuilder, filterOutExistingImages, DESTINATION_DIR } from './async.js';
+import { pipeline } from './util.js';
 
 dotenv.config();
 
