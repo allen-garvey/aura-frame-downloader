@@ -43,20 +43,15 @@ export const filterOutExistingImages = (items) => Promise.all(
  */
 export const itemPromiseBuilder = (item, i, items) => {
     const destination = item.destination;
-    const counter = `${i+1}/${items.length}`;
-    const IMAGE_DOWNLOADED = true;
+    const progressCounter = `${i+1}/${items.length}`;
 
     return fs.promises.stat(destination).catch(() => {
-        console.log(`Downloading image ${counter}`);
+        console.log(`Downloading image ${progressCounter}`);
         return fetch(item.url)
         .then(res => {
-            console.log(`Saving image ${counter}`);
+            console.log(`Saving image ${progressCounter}`);
             const fileStream = fs.createWriteStream(destination, { flags: 'w' });
             return res.body.pipe(fileStream);
-        }).then(() => IMAGE_DOWNLOADED);
-    }).then((res) => {
-        if(res !== IMAGE_DOWNLOADED){
-            console.log(`Skipping image ${counter} as it already exists`);
-        }
+        })
     });
 };
