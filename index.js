@@ -51,10 +51,4 @@ fs.promises.mkdir(DESTINATION_DIR, {recursive: true})
     // console.log(JSON.stringify(json));
     return filterOutExistingImages(json.assets);
 })
-.then(items => {
-    if(items.length === 0){
-        console.log('No images to download');
-        return;
-    }
-    return pipeline(items, itemPromiseBuilder);
-});
+.then(items => pipeline(items, itemPromiseBuilder));

@@ -46,7 +46,11 @@ export const filterOutExistingImages = (items) => Promise.all(
         return doesFileExist(imageItem.destination)
         .then(res => res ? null : imageItem);
     })
-).then(items => items.filter(item => item !== null));
+).then(items => items.filter(item => item !== null))
+.then(filteredItems => {
+    console.log(`Total images: ${items.length}. Images skipped since they already exist: ${items.length - filteredItems.length}. Images to download: ${filteredItems.length}`);
+    return filteredItems;
+});
 
 /**
  * @param {ImageItem} item
