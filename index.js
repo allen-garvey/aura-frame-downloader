@@ -4,8 +4,8 @@ import * as dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import fs from 'fs';
 
-import { itemPromiseBuilder, filterOutExistingImages, DESTINATION_DIR } from './async.js';
-import { pipeline } from './util.js';
+import { downloadAndSaveImages, filterOutExistingImages, DESTINATION_DIR } from './async.js';
+import { forEachAsyncWithDelay, jsonHeaders } from './util.js';
 
 dotenv.config();
 
@@ -20,16 +20,11 @@ const body = {
     },
 };
 
-const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-};
-
 fs.promises.mkdir(DESTINATION_DIR, {recursive: true})
 .then(() => 
     fetch('https://api.pushd.com/v5/login.json', {
         method: 'POST',
-        headers,
+        headers: jsonHeaders(),
         body: JSON.stringify(body),
     })
 )
@@ -37,8 +32,10 @@ fs.promises.mkdir(DESTINATION_DIR, {recursive: true})
 .then(json => {
     // console.log(JSON.stringify(json));
 
-    headers['X-User-Id'] = json.result.current_user.id;
-    headers['X-Token-Auth'] = json.result.current_user.auth_token;
+    const headers = jsonHeaders({
+        'X-User-Id':  json.result.current_user.id,
+        'X-Token-Auth':  json.result.current_user.auth_token,
+    });
 
     const frameUrl = `https://api.pushd.com/v5/frames/${process.env.FRAME_ID}/assets.json?limit=1000&side_load_users=false`;
 
@@ -52,4 +49,4 @@ fs.promises.mkdir(DESTINATION_DIR, {recursive: true})
     // console.log(JSON.stringify(json));
     return filterOutExistingImages(json.assets);
 })
-.then(items => pipeline(items, itemPromiseBuilder));
+.then(items => forEachAsyncWithDelay(items, downloadAndSaveImages));

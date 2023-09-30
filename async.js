@@ -41,7 +41,7 @@ export const filterOutExistingImages = (items) => Promise.all(
  * @param {number} i
  * @param {Array.<ImageItem>} items
  */
-export const itemPromiseBuilder = (item, i, items) => {
+export const downloadAndSaveImages = (item, i, items) => {
     const destination = item.destination;
     const progressCounter = `${i+1}/${items.length}`;
 
