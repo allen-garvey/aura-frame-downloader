@@ -9,7 +9,6 @@ Download all the photos in a given [Aura](https://app.auraframes.com) frame.
 
 ## Getting Started
 
-* `mkdir images`
 * `cp .env.example .env`
 * Fill out the values in `.env`
 * `npm install`
