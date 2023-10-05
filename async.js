@@ -1,12 +1,10 @@
 import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
-import { doesFileExist } from './util.js';
+import { doesFileExist, formatUserName, timestampToDate } from './util.js';
 
 /**
  * @typedef {Object} ImageItem
- * @property {string} fileName
- * @property {string} userId
  * @property {string} destination
  * @property {string} url
  */
@@ -21,10 +19,10 @@ export const filterOutExistingImages = (items) => Promise.all(
     items.map(item => {
         const fileName = item.file_name;
         const userId = item.user_id;
+        const userName = item.user.name ? formatUserName(item.user.name) : userId;
+        const date = timestampToDate(item.uploaded_at);
         const imageItem = {
-            fileName,
-            userId,
-            destination: path.join(DESTINATION_DIR, `${userId}__${fileName}`),
+            destination: path.join(DESTINATION_DIR, `${date}__${userName}__${fileName}`),
             url: `https://imgproxy.pushd.com/${userId}/${fileName}`,
         };
         return doesFileExist(imageItem.destination)
