@@ -33,6 +33,7 @@ Thumbs.db
 .vscode/*
 *.swp
 *.csv
+*.heic
 
 # Env variables
 .env
