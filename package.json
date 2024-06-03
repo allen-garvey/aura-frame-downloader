@@ -11,8 +11,7 @@
   "author": "Allen Garvey",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.1"
+    "dotenv": "^16.0.3"
   },
   "prettier": {
     "tabWidth": 4,

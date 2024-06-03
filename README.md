@@ -5,7 +5,7 @@ Download all the photos in a given [Aura](https://app.auraframes.com) frame.
 ## Dependencies
 
 * npm
-* node >=18
+* node >=22
 
 ## Getting Started
 
